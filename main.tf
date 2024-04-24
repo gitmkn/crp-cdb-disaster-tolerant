@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    tencentcloud = {
-      source = "tencentcloudstack/tencentcloud"
-    }
-  }
-}
-
 provider "tencentcloud" {
   alias  = "guangzhou"
   region = "ap-guangzhou"
@@ -16,9 +8,8 @@ provider "tencentcloud" {
   region = "ap-shanghai"
 }
 
-
 module "vpc-guangzhou" {
-  source   = "./modules/vpc"
+  source    = "./modules/vpc"
   providers = {
     tencentcloud = tencentcloud.guangzhou
   }
@@ -31,7 +22,7 @@ module "vpc-guangzhou" {
 }
 
 module "vpc-shanghai" {
-  source   = "./modules/vpc"
+  source    = "./modules/vpc"
   providers = {
     tencentcloud = tencentcloud.shanghai
   }
@@ -44,7 +35,7 @@ module "vpc-shanghai" {
 }
 
 module "securityGroup-guangzhou" {
-  source   = "./modules/securityGroups"
+  source    = "./modules/securityGroups"
   providers = {
     tencentcloud = tencentcloud.guangzhou
   }
@@ -54,7 +45,7 @@ module "securityGroup-guangzhou" {
 }
 
 module "securityGroup-shanghai" {
-  source   = "./modules/securityGroups"
+  source    = "./modules/securityGroups"
   providers = {
     tencentcloud = tencentcloud.shanghai
   }
@@ -64,9 +55,9 @@ module "securityGroup-shanghai" {
 }
 
 module "mysql-master-instance" {
-  source   = "./modules/mysql"
+  source     = "./modules/mysql"
   depends_on = [module.vpc-guangzhou, module.securityGroup-guangzhou]
-  providers = {
+  providers  = {
     tencentcloud = tencentcloud.guangzhou
   }
 
@@ -80,28 +71,34 @@ module "mysql-master-instance" {
 }
 
 module "mysql-ro-instance" {
-  source   = "./modules/mysql"
-  depends_on = [module.vpc-guangzhou, module.securityGroup-guangzhou, module.mysql-master-instance]
+  source     = "./modules/mysql"
+  depends_on = [
+    module.vpc-guangzhou, module.securityGroup-guangzhou,
+    module.mysql-master-instance
+  ]
   providers = {
     tencentcloud = tencentcloud.guangzhou
   }
 
   # readonly instance
   create_mysql_readonly_instance = true
-  master_instance_id    = module.mysql-master-instance.db_instance_id
+  master_instance_id             = module.mysql-master-instance.db_instance_id
 }
 
 module "mysql-dr-instance" {
-  source   = "./modules/mysql"
-  depends_on = [module.vpc-shanghai, module.securityGroup-shanghai, module.mysql-master-instance]
+  source     = "./modules/mysql"
+  depends_on = [
+    module.vpc-shanghai, module.securityGroup-shanghai,
+    module.mysql-master-instance
+  ]
   providers = {
     tencentcloud = tencentcloud.shanghai
   }
 
   # dr instance
   create_mysql_dr_instance = true
-  master_instance_id    = module.mysql-master-instance.db_instance_id
-  master_region         = var.master_instance_region
+  master_instance_id       = module.mysql-master-instance.db_instance_id
+  master_region            = var.master_instance_region
   dr_security_groups       = [module.securityGroup-shanghai.security_group_id]
   dr_vpc_id                = module.vpc-shanghai.vpc_id
   dr_subnet_id             = module.vpc-shanghai.subnet_id
