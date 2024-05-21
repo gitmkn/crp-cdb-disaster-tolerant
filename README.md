@@ -1,6 +1,6 @@
 # crp-cdb-disaster-tolerant
 
-[![Deploy-To-Tencent-Cloud.png](https://i.postimg.cc/Y9SjcNrP/Deploy-To-Tencent-Cloud.png)](https://console.cloud.tencent.com/crp/template/template-1nfsug)
+[![Deploy-To-Tencent-Cloud.png](https://i.postimg.cc/Y9SjcNrP/Deploy-To-Tencent-Cloud.png)](https://console.cloud.tencent.com/crp/template/tmplate-cdb-disaster-tolerant)
 
 Use tf to realize one-click deployment of MySQL disaster recovery in two places and three centers.
 
